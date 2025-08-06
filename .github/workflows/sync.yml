@@ -2,8 +2,8 @@ name: Upstream Sync
 
 on:
   schedule:
-    - cron: "0 */6 * * *" # run every 6 hours
-  workflow_dispatch:
+    - cron: "0 */6 * * *" # 每6小时运行一次
+  workflow_dispatch: # 允许手动触发
 
 permissions:
   contents: write
@@ -13,14 +13,12 @@ jobs:
   sync_latest_from_upstream:
     name: Sync latest commits from upstream repo
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.fork }}
+    if: ${{ github.event.repository.fork }} # 只在fork仓库上运行
 
     steps:
-      # Step 1: run a standard checkout action
       - name: Checkout target repo
         uses: actions/checkout@v4
 
-      # Step 2: run the sync action
       - name: Sync upstream changes
         id: sync
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
@@ -33,7 +31,7 @@ jobs:
       - name: Sync check
         if: failure()
         run: |
-          echo "[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork."
+          echo "[Error] 上游仓库的工作流文件发生了变化，GitHub已经自动暂停了定时更新。请手动同步您的fork。"
           exit 1
 
       - name: Delete workflow runs
